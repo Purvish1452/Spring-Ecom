@@ -52,4 +52,22 @@ public class ProductController {
                 .contentType(MediaType.valueOf(product.getImageType()))
                 .body(imageFile);
   }
+
+
+  public ResponseEntity<String> updateProduct(@PathVariable int id , @RequestPart product product, @RequestPart MultipartFile imageFile) {
+
+        try {
+
+            product product1 = service.updateProduct(id, product, imageFile);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if(product!=null)
+        {
+            return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
+        }
+  }
 }
