@@ -42,7 +42,7 @@ public class ProductController {
          }
     }
 
-    @GetMapping("/product/{productId}/image")
+    @GetMapping("/products/{productId}/image")
   public ResponseEntity<byte[]> getImageByProductId(@PathVariable int productId) {
 
         product product = service.getProductById(productId);
@@ -71,7 +71,7 @@ public class ProductController {
         }
   }
 
-  @DeleteMapping("/product/{id}")
+  @DeleteMapping("/products/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable int id) {
         product product = service.getProductById(id);
         if(product !=null)
@@ -81,5 +81,12 @@ public class ProductController {
         } else {
             return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/products/search")
+    public ResponseEntity<List<product>> searchProducts(@RequestParam String keyword) {
+           System.out.println("searching with " + keyword);
+           List<product> products=service.searchProducts(keyword);
+              return new ResponseEntity<>(products,HttpStatus.OK);
     }
 }
