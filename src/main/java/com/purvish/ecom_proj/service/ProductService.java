@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -21,22 +20,36 @@ public class ProductService {
     }
 
     public product getProductById(int id) {
-        return repo.findById(id).get();
+        return repo.findById(id).orElse(null);
     }
 
-    // Method to add a product along with its image
-    public product addProduct(product product, MultipartFile imageFile) {
+    public product addProduct(product product, MultipartFile imageFile) throws IOException {
         product.setImageName(imageFile.getOriginalFilename());
         product.setImageType(imageFile.getContentType());
-        product.setImageName(imageFile.getOriginalFilename());
+        product.setImageData(imageFile.getBytes());
         return repo.save(product);
     }
 
     public product updateProduct(int id, product product, MultipartFile imageFile) throws IOException {
-        product.setImageName(Arrays.toString(imageFile.getBytes()));
-        product.setImageName(imageFile.getOriginalFilename());
-        product.setImageType(imageFile.getContentType());
-        return repo.save(product);
+        product existing = getProductById(id);
+        if (existing == null) {
+            return null;
+        }
+
+        existing.setName(product.getName());
+        existing.setDesc(product.getDesc());
+        existing.setBrand(product.getBrand());
+        existing.setPrice(product.getPrice());
+        existing.setCategory(product.getCategory());
+        existing.setReleaseDate(product.getReleaseDate());
+        existing.setAvailable(product.isAvailable());
+        existing.setQuantity(product.getQuantity());
+        if (imageFile != null && !imageFile.isEmpty()) {
+            existing.setImageName(imageFile.getOriginalFilename());
+            existing.setImageType(imageFile.getContentType());
+            existing.setImageData(imageFile.getBytes());
+        }
+        return repo.save(existing);
     }
 
     public void deleteProduct(int id) {

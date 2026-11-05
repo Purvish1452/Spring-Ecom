@@ -2,8 +2,10 @@ package com.purvish.ecom_proj.model;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +14,6 @@ import java.util.Date;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class product {
 
@@ -20,18 +21,25 @@ public class product {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int id;
     private String name;
+    @JsonProperty("description")
+    @JsonAlias("desc")
     private String desc;
     private String brand;
     private BigDecimal price;
     private String category;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date releaseDate;
+    @JsonProperty("productAvailable")
+    @JsonAlias("available")
     private boolean available;
+    @JsonProperty("stockQuantity")
+    @JsonAlias("quantity")
     private int quantity;
 
     private String imageName;
     private String imageType;
-    @Lob // Specify that this field should be treated as a large object
+    @JsonIgnore
+    @Lob
     private byte[] imageData;
 }

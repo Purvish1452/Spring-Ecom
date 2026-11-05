@@ -1,8 +1,6 @@
 # Spring E-commerce
 
-A small e-commerce prototype with a Spring Boot REST API and a React storefront. The backend provides product endpoints and accepts image-upload requests; the frontend provides catalog, product, cart, and product-entry screens.
-
-> **Integration status:** The frontend and backend are not fully in sync yet. The frontend calls `/api/products` for catalog/search data, while the backend currently exposes `/api/product`. The frontend also expects search and update endpoints that the backend does not currently implement. See [Known limitations](#known-limitations).
+A small e-commerce prototype with a Spring Boot REST API and a React storefront. The backend provides product endpoints, including product image upload and retrieval; the frontend provides catalog, product, cart, and product-entry screens.
 
 ## Technology
 
@@ -22,7 +20,7 @@ A small e-commerce prototype with a Spring Boot REST API and a React storefront.
 │   │   └── service/      # Product operations
 │   ├── main/resources/   # Application properties and sample SQL
 │   └── test/             # Spring application context test
-└── ecom-frontend-4/      # React/Vite application
+└── ecom-frontend-5/      # React/Vite application
 ```
 
 ## Requirements
@@ -45,7 +43,7 @@ The API listens on `http://localhost:8080`. Its configured H2 database is in mem
 In another terminal, start the frontend:
 
 ```powershell
-cd ecom-frontend-4
+cd ecom-frontend-5
 npm install
 npm run dev
 ```
@@ -58,10 +56,12 @@ The implemented routes are prefixed with `/api`:
 
 | Method | Route | Description |
 |---|---|---|
-| `GET` | `/api/product` | List products |
+| `GET` | `/api/product` or `/api/products` | List products |
 | `GET` | `/api/product/{id}` | Get a product by ID |
 | `GET` | `/api/product/{productId}/image` | Return the image data stored for a product |
-| `POST` | `/api/product` | Create a product with an image |
+| `GET` | `/api/products/search?keyword={text}` | Search product name, description, brand, or category |
+| `POST` | `/api/product` or `/api/products` | Create a product with an image |
+| `PUT` | `/api/product/{id}` | Update a product and optionally replace its image |
 | `DELETE` | `/api/product/{id}` | Delete a product |
 
 Product creation uses `multipart/form-data` with two parts:
@@ -69,19 +69,16 @@ Product creation uses `multipart/form-data` with two parts:
 - `product`: JSON for the product entity
 - `imageFile`: the uploaded image file
 
-The entity fields are `name`, `desc`, `brand`, `price`, `category`, `releaseDate`, `available`, and `quantity`. The entity has image metadata and image-byte fields. `releaseDate` is formatted as `dd-MM-yyyy` in JSON.
+The entity fields are `name`, `description`, `brand`, `price`, `category`, `releaseDate`, `productAvailable`, and `stockQuantity`. The backend accepts the legacy names `desc`, `available`, and `quantity` as aliases. Uploaded image metadata and bytes are stored with the product. `releaseDate` uses the `yyyy-MM-dd` format.
 
 ## Frontend features
 
-The UI includes product listing and category filtering, product details, product creation/edit screens, a cart persisted in browser local storage, and a theme toggle. These screens are present in the frontend, but some rely on backend routes or field names that are not currently available or aligned.
+The UI includes product listing and category filtering, product details, product creation/edit screens, a cart persisted in browser local storage, and a theme toggle. The backend allows requests from the local Vite development origins `http://localhost:5173` and `http://127.0.0.1:5173`.
 
 ## Known limitations
 
-- The frontend requests `/api/products` and `/api/products/search`, while the backend currently only maps the singular `/api/product` routes listed above.
-- The frontend submits product updates with `PUT /api/product/{id}`, but there is no mapped update endpoint in the backend.
-- The frontend expects fields such as `description`, `productAvailable`, and `stockQuantity`; the backend entity uses `desc`, `available`, and `quantity`.
-- Product creation records the uploaded image's name and content type but does not currently save its bytes, so the image endpoint cannot return images uploaded through this flow.
-- There is no backend search endpoint or order/checkout API. The current checkout UI is not a complete order-processing flow.
+- Checkout is currently a frontend-only flow; the backend does not implement orders or payment processing.
+- `src/main/resources/data1.sql` contains sample records, but this nonstandard filename is not automatically executed with the current configuration.
 - The current test suite contains a Spring application-context load test.
 
 ## Useful commands
@@ -92,7 +89,7 @@ Run backend tests:
 .\mvnw.cmd test
 ```
 
-From `ecom-frontend-4`, build or lint the frontend:
+From `ecom-frontend-5`, build or lint the frontend:
 
 ```powershell
 npm run build
